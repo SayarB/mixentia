@@ -5,7 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { Playlist, PlaylistResponse } from "./types";
+import { PlaylistDetailed, PlaylistResponse } from "./types";
 
 export const SpotifyRouter = createTRPCRouter({
   hello: publicProcedure
@@ -30,4 +30,20 @@ export const SpotifyRouter = createTRPCRouter({
 
     return { ...data, playlists: data.items, items: undefined };
   }),
+  getPlaylistData: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { id } = input;
+      const { token } = ctx.session;
+
+      const res = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token.accessToken}`,
+        },
+      });
+
+      const data: PlaylistDetailed =
+        res.status === 200 ? await res.json() : null;
+      return data;
+    }),
 });

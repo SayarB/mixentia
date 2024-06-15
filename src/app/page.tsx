@@ -1,21 +1,14 @@
 import Link from "next/link";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
+import PlaylistButton from "./_components/PlaylistButton";
 
 export default async function Home() {
-  const hello = await api.spotify.hello({ text: "from tRPC" });
   const session = await getServerAuthSession();
-  if (session) {
-    const data = await api.spotify.getPlaylists()
 
-    return <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      {data ? data.playlists.map((playlist) => (<li>{playlist.name} - {playlist.owner.display_name}</li>)) : 'No playlists'}
-    </main>
-  }
+  return <div className="w-[100vw] min-h-[100vh]">
+    
+  </div>
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      {<Link href={'/api/auth/signin'}>Sign in</Link>}
-    </main>
-  );
+
 }
