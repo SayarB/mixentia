@@ -26,10 +26,10 @@ export default function RootLayout({
       <body>
         <TRPCReactProvider>
           <AuthValidator>
-            <>
+            <div className="min-h-[100vh] flex flex-col">
               <Navbar />
               {children}
-            </>
+            </div>
           </AuthValidator>
         </TRPCReactProvider>
       </body>

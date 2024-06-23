@@ -10,8 +10,10 @@ import SortableItem from "./SortableItem"
 type Props = {
     id: string;
     items: { id: string, content: string }[];
+    className?: string;
+    title: string
 }
-const DNDContainer: React.FC<Props> = ({ id, items }) => {
+const DNDContainer: React.FC<Props> = ({ id, items, title, className }) => {
 
     const { setNodeRef } = useDroppable({
         id
@@ -23,10 +25,15 @@ const DNDContainer: React.FC<Props> = ({ id, items }) => {
             items={items}
             strategy={verticalListSortingStrategy}
         >
-            <div ref={setNodeRef} className='bg-slate-400 m-2 w-[300px] h-[400px] overflow-scroll' >
-                {items.map((item) => (
-                    <SortableItem key={item.id} item={item} />
-                ))}
+            <div className="m-2 h-full flex flex-col">
+                <div className="text-black">
+                    <h2>{title}</h2>
+                </div>
+                <div ref={setNodeRef} className={className + " flex-1"} >
+                    {items.map((item) => (
+                        <SortableItem key={item.id} item={item} />
+                    ))}
+                </div>
             </div>
         </SortableContext >
     );

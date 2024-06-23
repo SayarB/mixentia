@@ -17,21 +17,61 @@ const DNDArena: React.FC<Props> = ({ items }) => {
             coordinateGetter: sortableKeyboardCoordinates
         })
     );
-    const [itemsState, setItemsState] = useState<{ root: Item[], [x: string]: Item[] }>({ root: items, pop: [], rock: [] })
+    const [itemsState, setItemsState] = useState<{ root: Item[], [x: string]: Item[] }>({ root: items })
     const [activeId, setActiveId] = useState<string | null>(null);
+
+    const [activeContainer, setActiveContainer] = useState<string | null>(null)
+
+    console.log('rerender')
+
+    const handleAddCategory = () => {
+        if (Object.keys(itemsState).length > 4) return
+        let catName = "cat 1"
+        for (let i = 1; i <= 4; i++) {
+            catName = `cat ${i}`
+            if (!Object.keys(itemsState).includes(catName)) break
+        }
+
+        console.log('added ', catName)
+        setItemsState(is => {
+            const arr = { ...is }
+            arr[catName] = []
+            return arr
+        })
+    }
+
+
+
+    const handleSubmit = () => {
+        
+    }
+
     return (
-        <DndContext
-            sensors={sensors}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}>
-            <div className='grid gap-2 grid-cols-3'>
-                {Object.keys(itemsState).map((key) => (
-                    <DNDContainer id={key} items={itemsState[key] ?? []} />
-                ))}
+        <div className='flex flex-col h-[85vh] mt-[50px]'>
+            <DndContext
+                sensors={sensors}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}>
+                <div className='max-w-[1200px] h-[100%] mx-auto flex items-center justify-center'>
+                    <div className="flex items-center justify-center h-[98%] ">
+                        <DNDContainer id={'root'} items={itemsState['root']} title='Root' className='bg-slate-400 w-[300px] h-[100%] overflow-scroll ' />
+                        <div className='h-full'>
+                            <div className='grid gap-2 grid-cols-2 grid-rows-2 h-full w-full'>
+                                {Object.keys(itemsState).filter(k => k !== "root").map((key) => (
+                                    <DNDContainer id={key} items={itemsState[key] ?? []} title={key} className={`bg-gray-200 border${activeContainer === key ? '-2' : ''} border-gray-400 w-[300px] h-full overflow-scroll`} />
+                                ))}
+                                {Object.keys(itemsState).length <= 4 && <button onClick={handleAddCategory}>Add</button>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <DragOverlay>{activeId ? <SortableItem item={items.find(item => item.id === activeId) ?? { id: "", content: "" }} /> : null}</DragOverlay>
+            </DndContext>
+            <div className='w-full flex items-center justify-center'>
+                <button onClick={handleSubmit}>Submit</button>
             </div>
-            <DragOverlay>{activeId ? <SortableItem item={items.find(item => item.id === activeId) ?? { id: "", content: "" }} /> : null}</DragOverlay>
-        </DndContext>
+        </div>
     );
 
 
@@ -51,10 +91,15 @@ const DNDArena: React.FC<Props> = ({ items }) => {
     }
 
     function handleDragOver(event: DragOverEvent) {
+        const { over } = event
+        setActiveContainer(over?.id as string)
+    }
+
+    function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event;
         const draggingRect = active.rect
         if (!over) return
-        console.log("over", active.rect, over.rect)
+
         const { id } = active;
         const { id: overId } = over;
 
@@ -62,89 +107,69 @@ const DNDArena: React.FC<Props> = ({ items }) => {
         const activeContainer = findContainer(id as string);
         const overContainer = findContainer(overId as string);
 
-        if (
-            !activeContainer ||
-            !overContainer ||
-            activeContainer === overContainer
-        ) {
-            return;
-        }
+        if (!activeContainer || !overContainer) return
 
-        setItemsState((prev) => {
-            const activeItems = prev[activeContainer];
-            const overItems = prev[overContainer];
-
-
-            if (!overItems) return prev;
-            if (!activeItems) return prev;
-
-            // Find the indexes for the items
-            const activeIndex = activeItems.findIndex((item) => item.id === id);
-            const overIndex = overItems.findIndex((item) => item.id === overId);
-
-            let newIndex;
-
-            if (overId in prev) {
-                // We're at the root droppable of a container
-                newIndex = overItems.length + 1;
-            } else {
-                const isBelowLastItem =
-                    over &&
-                    overIndex === overItems.length - 1 &&
-                    draggingRect.current.initial!.top > over.rect.top + over.rect.height;
-                const modifier = isBelowLastItem ? 1 : 0;
-
-                newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-            }
-
-
-            return {
-                ...prev,
-                [activeContainer]: [
-                    ...activeItems.filter((item) => item.id !== active.id)
-                ],
-                [overContainer]: [
-                    ...overItems!.slice(0, newIndex),
-                    activeItems[activeIndex] as Item,
-                    ...overItems.slice(newIndex, overItems.length)
-                ]
-            };
-        });
-    }
-
-    function handleDragEnd(event: DragEndEvent) {
-        const { active, over } = event;
-        if (!over) return
-        console.log("end", active.id, over.id)
-        const { id } = active;
-        const { id: overId } = over;
-
-        const activeContainer = findContainer(id as string);
-        const overContainer = findContainer(overId as string);
-        console.log("end", active.id, over.id, activeContainer, overContainer)
-
-        if (
-            !activeContainer ||
-            !overContainer ||
-            activeContainer !== overContainer
-        ) {
-            return;
-        }
+        console.log(activeContainer, overContainer)
         const activeItems = itemsState[activeContainer];
         const overItems = itemsState[overContainer];
-        if (!activeItems || !overItems) return;
 
-        const activeIndex = activeItems.findIndex((item) => item.id === active.id);
-        const overIndex = overItems.findIndex((item) => item.id === overId);
+        if (!activeItems || !overItems) return
 
-        if (activeIndex !== overIndex) {
-            setItemsState((items) => ({
-                ...items,
-                [overContainer]: arrayMove(overItems, activeIndex, overIndex)
-            }));
+        if (
+            activeContainer === overContainer
+        ) {
+            const activeIndex = activeItems.findIndex((item) => item.id === active.id);
+            const overIndex = overItems.findIndex((item) => item.id === overId);
+
+            if (activeIndex !== overIndex) {
+                setItemsState((items) => ({
+                    ...items,
+                    [overContainer]: arrayMove(overItems, activeIndex, overIndex)
+                }));
+            }
+
+            setActiveId(null);
+        } else {
+            console.log("over", active.rect, over.rect)
+
+            setItemsState((prev) => {
+
+                // Find the indexes for the items
+                const activeIndex = activeItems.findIndex((item) => item.id === id);
+                const overIndex = overItems.findIndex((item) => item.id === overId);
+
+                let newIndex;
+
+                if (overId in prev) {
+                    // We're at the root droppable of a container
+                    newIndex = overItems.length + 1;
+                } else {
+                    const isBelowLastItem =
+                        over &&
+                        overIndex === overItems.length - 1 &&
+                        draggingRect.current.initial!.top > over.rect.top + over.rect.height;
+                    const modifier = isBelowLastItem ? 1 : 0;
+
+                    newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+                }
+
+
+                return {
+                    ...prev,
+                    [activeContainer]: [
+                        ...activeItems.filter((item) => item.id !== active.id)
+                    ],
+                    [overContainer]: [
+                        ...overItems.slice(0, newIndex),
+                        activeItems[activeIndex] as Item,
+                        ...overItems.slice(newIndex, overItems.length)
+                    ]
+                };
+            });
+            console.log("end", active.id, over.id, activeContainer, overContainer)
         }
 
-        setActiveId(null);
+
     }
 }
 

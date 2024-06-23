@@ -9,8 +9,9 @@ const SubPlaylistArena: React.FC<Props> = ({ tracks }) => {
         id: track.track.id,
         content: track.track.name,
     }));
+
     return (
-        <div>
+        <div className='block'>
             <DNDArena items={items} />
         </div>
     );

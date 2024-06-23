@@ -8,8 +8,8 @@ const Navbar: React.FC = () => {
     }
 
     return (
-        <nav className='absolute flex p-2 justify-end top-0 left-0 h-[50px] w-[100vw]'>
-            <DropdownMenu.Root>
+        <DropdownMenu.Root>
+            <nav className='flex p-2 justify-end h-[50px] w-[100vw]'>
                 <DropdownMenu.Trigger asChild>
                     <button
                         className="rounded-full w-[35px] h-[35px] inline-flex items-center justify-center text-violet11 bg-white shadow-[0_2px_10px] shadow-blackA4 outline-none hover:bg-violet3 focus:shadow-[0_0_0_2px] focus:shadow-black"
@@ -27,8 +27,8 @@ const Navbar: React.FC = () => {
 
                     </DropdownMenu.Content>
                 </DropdownMenu.Portal>
-            </DropdownMenu.Root>
-        </nav>
+            </nav >
+        </DropdownMenu.Root>
     )
 };
 
