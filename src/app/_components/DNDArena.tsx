@@ -41,9 +41,20 @@ const DNDArena: React.FC<Props> = ({ items }) => {
     }
 
 
+    const onTitleChange = (key: string, title: string) => {
+        setItemsState((prev) => {
+            const arr = { ...prev }
+            const val = arr[key]
+            if (val) {
+                arr[title] = [...val]
+            }
+            delete arr[key]
+            return arr
+        })
+    }
 
     const handleSubmit = () => {
-        
+        console.log(itemsState)
     }
 
     return (
@@ -59,7 +70,9 @@ const DNDArena: React.FC<Props> = ({ items }) => {
                         <div className='h-full'>
                             <div className='grid gap-2 grid-cols-2 grid-rows-2 h-full w-full'>
                                 {Object.keys(itemsState).filter(k => k !== "root").map((key) => (
-                                    <DNDContainer id={key} items={itemsState[key] ?? []} title={key} className={`bg-gray-200 border${activeContainer === key ? '-2' : ''} border-gray-400 w-[300px] h-full overflow-scroll`} />
+                                    <DNDContainer id={key} items={itemsState[key] ?? []} title={key} onTitleChange={(title) => {
+                                        onTitleChange(key, title)
+                                    }} className={`bg-gray-200 border${activeContainer === key ? '-2' : ''} border-gray-400 w-[300px] h-full overflow-scroll`} />
                                 ))}
                                 {Object.keys(itemsState).length <= 4 && <button onClick={handleAddCategory}>Add</button>}
                             </div>
