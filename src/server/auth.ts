@@ -100,6 +100,12 @@ export const authOptions: NextAuthOptions = {
     Spotify({
       clientId: env.SPOTIFY_CLIENT_ID,
       clientSecret: env.SPOTIFY_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope:
+            "user-read-email,user-modify-playback-state,user-read-playback-state",
+        },
+      },
     }),
 
     /**

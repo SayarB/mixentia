@@ -94,6 +94,47 @@ export const SpotifyRouter = createTRPCRouter({
         where: (cat, { and, eq }) =>
           and(eq(cat.userId, ctx.session.user.id), eq(cat.playlistId, id)),
       });
-      return data;
+      const tags: string[] = [];
+      data.forEach((d) => {
+        if (!tags.includes(d.categoryName)) tags.push(d.categoryName);
+      });
+      return { data, tags };
+    }),
+  playTrack: protectedProcedure
+    .input(z.object({ trackIds: z.string().array(), playlistId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      console.log("playTrack called", input);
+
+      const { trackIds, playlistId } = input;
+
+      if (trackIds.length === 0) {
+        const res = await fetch(`https://api.spotify.com/v1/me/player/play`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${ctx.session.token.accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            context_uri: `spotify:playlist:${playlistId}`,
+          }),
+        });
+        console.log(res.status);
+        return res.status === 204;
+      } else {
+        const res = await fetch(`https://api.spotify.com/v1/me/player/play`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${ctx.session.token.accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uris: trackIds.map((id) => `spotify:track:${id}`),
+          }),
+        });
+
+        console.log(await res.text());
+
+        return res.status === 204;
+      }
     }),
 });
