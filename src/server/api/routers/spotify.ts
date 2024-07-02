@@ -10,13 +10,6 @@ import { trackCategory } from "~/server/db/schema";
 import { db } from "~/server/db";
 
 export const SpotifyRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
   getPlaylists: protectedProcedure.query(async ({ ctx }) => {
     const { user, token } = ctx.session;
     const res = await fetch("https://api.spotify.com/v1/me/playlists", {
