@@ -15,7 +15,7 @@ const SubPlaylistPage: React.FC<Props> = async ({ params: { id } }) => {
     if (session) {
         return <main>
             <div>
-                <SubPlaylistArena tracks={playlistData.tracks.items} />
+                <SubPlaylistArena tracks={playlistData.tracks.items} playlistId={id} />
             </div>
         </main>
     }

@@ -93,3 +93,17 @@ export const verificationTokens = createTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   }),
 );
+
+export const trackCategory = createTable("trackCategory", {
+  id: text("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: text("userId", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  playlistId: text("playlistId", { length: 255 }).notNull(),
+  categoryName: text("categoryName", { length: 255 }).notNull(),
+  trackId: text("trackId", { length: 255 }).notNull(),
+  trackName: text("trackName", { length: 255 }).notNull(),
+});

@@ -5,19 +5,23 @@ import { Announcements, DndContext, DragEndEvent, DragOverEvent, DragOverlay, Dr
 import { SortableContext, arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import SortableItem from './SortableItem';
 import DNDContainer from './DNDContainer';
-type Props = { items: Item[] }
+import { api } from '~/trpc/react';
+type Props = { defaultState: { root: Item[], [x: string]: Item[] }, items: Item[], playlistId: string }
 type Item = { id: string; content: string }
 
 
-const DNDArena: React.FC<Props> = ({ items }) => {
-
+const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates
         })
     );
-    const [itemsState, setItemsState] = useState<{ root: Item[], [x: string]: Item[] }>({ root: items })
+
+    const subPlaylistMutation = api.spotify.createSubPlaylist.useMutation()
+
+
+    const [itemsState, setItemsState] = useState<{ root: Item[], [x: string]: Item[] }>(defaultState)
     const [activeId, setActiveId] = useState<string | null>(null);
 
     const [activeContainer, setActiveContainer] = useState<string | null>(null)
@@ -42,19 +46,26 @@ const DNDArena: React.FC<Props> = ({ items }) => {
 
 
     const onTitleChange = (key: string, title: string) => {
+        console.log('title change', key, title)
         setItemsState((prev) => {
-            const arr = { ...prev }
-            const val = arr[key]
-            if (val) {
-                arr[title] = [...val]
-            }
-            delete arr[key]
+
+            let arr: { root: Item[], [x: string]: Item[] } = { root: prev.root }
+            Object.keys(prev).forEach(k => {
+                const val = prev[k]
+                if (val === undefined) return
+                if (k === key) {
+                    arr[title] = [...val]
+                } else {
+                    arr[k] = [...val]
+                }
+            })
+            console.log(arr)
             return arr
         })
     }
 
     const handleSubmit = () => {
-        console.log(itemsState)
+        subPlaylistMutation.mutateAsync({ playlistId, items: itemsState })
     }
 
     return (

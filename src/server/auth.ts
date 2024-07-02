@@ -63,7 +63,7 @@ export const authOptions: NextAuthOptions = {
         },
         user: {
           ...session.user,
-          id: token.id,
+          id: token.userId,
         },
       };
     },
@@ -73,12 +73,14 @@ export const authOptions: NextAuthOptions = {
         accessToken?: string;
         refreshToken?: string;
         accessTokenExpires?: number;
+        userId?: string;
       } = { ...token };
 
       if (account && user) {
         updatedToken.accessToken = account.access_token || "";
         updatedToken.refreshToken = account.refresh_token || "";
         updatedToken.accessTokenExpires = account.expires_at || Date.now();
+        updatedToken.userId = user.id;
         updatedToken.id = account.providerAccountId || "";
       }
       if (Date.now() < (updatedToken.accessTokenExpires || 0)) {
