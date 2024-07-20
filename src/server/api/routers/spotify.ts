@@ -18,7 +18,6 @@ export const SpotifyRouter = createTRPCRouter({
       },
     });
     if (res.status !== 200) {
-      console.log(await res.text());
       return null;
     }
     const data: PlaylistResponse = await res.json();
@@ -63,8 +62,6 @@ export const SpotifyRouter = createTRPCRouter({
         categoryName: string;
       }[] = [];
 
-      console.log("userId = ", ctx.session.user.id);
-
       Object.keys(items)
         .filter((k) => k !== "root")
         .forEach((key) => {
@@ -83,7 +80,6 @@ export const SpotifyRouter = createTRPCRouter({
         });
 
       const result = await db.insert(trackCategory).values(data).execute();
-      console.log("added " + result.rowsAffected + " rows");
     }),
 
   getPlaylistDataWithTags: protectedProcedure
@@ -103,8 +99,6 @@ export const SpotifyRouter = createTRPCRouter({
   playTrack: protectedProcedure
     .input(z.object({ trackIds: z.string().array(), playlistId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      console.log("playTrack called", input);
-
       const { trackIds, playlistId } = input;
 
       if (trackIds.length === 0) {
@@ -118,7 +112,7 @@ export const SpotifyRouter = createTRPCRouter({
             context_uri: `spotify:playlist:${playlistId}`,
           }),
         });
-        console.log(res.status);
+
         return res.status === 204;
       } else {
         const res = await fetch(`https://api.spotify.com/v1/me/player/play`, {
@@ -131,8 +125,6 @@ export const SpotifyRouter = createTRPCRouter({
             uris: trackIds.map((id) => `spotify:track:${id}`),
           }),
         });
-
-        console.log(await res.text());
 
         return res.status === 204;
       }

@@ -26,7 +26,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
 
     const [activeContainer, setActiveContainer] = useState<string | null>(null)
 
-    console.log('rerender')
+
 
     const handleAddCategory = () => {
         if (Object.keys(itemsState).length > 4) return
@@ -36,7 +36,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
             if (!Object.keys(itemsState).includes(catName)) break
         }
 
-        console.log('added ', catName)
+
         setItemsState(is => {
             const arr = { ...is }
             arr[catName] = []
@@ -46,7 +46,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
 
 
     const onTitleChange = (key: string, title: string) => {
-        console.log('title change', key, title)
+
         setItemsState((prev) => {
 
             let arr: { root: Item[], [x: string]: Item[] } = { root: prev.root }
@@ -59,7 +59,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
                     arr[k] = [...val]
                 }
             })
-            console.log(arr)
+
             return arr
         })
     }
@@ -110,7 +110,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
     function handleDragStart(event: DragStartEvent) {
         const { active } = event;
         const { id } = active;
-        console.log(id)
+
         setActiveId(id as string);
     }
 
@@ -133,7 +133,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
 
         if (!activeContainer || !overContainer) return
 
-        console.log(activeContainer, overContainer)
+
         const activeItems = itemsState[activeContainer];
         const overItems = itemsState[overContainer];
 
@@ -154,7 +154,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
 
             setActiveId(null);
         } else {
-            console.log("over", active.rect, over.rect)
+
 
             setItemsState((prev) => {
 
@@ -190,7 +190,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
                     ]
                 };
             });
-            console.log("end", active.id, over.id, activeContainer, overContainer)
+
         }
 
 
