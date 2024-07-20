@@ -12,7 +12,7 @@ const SubPlaylistPage: React.FC<Props> = async ({ params: { id } }) => {
 
     const playlistData = await api.spotify.getPlaylistData({ id });
 
-    if (session) {
+    if (session && playlistData) {
         return <main>
             <div>
                 <SubPlaylistArena tracks={playlistData.tracks.items} playlistId={id} />
