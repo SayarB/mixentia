@@ -77,13 +77,13 @@ export const authOptions: NextAuthOptions = {
       } = { ...token };
 
       if (account && user) {
-        updatedToken.accessToken = account.access_token || "";
-        updatedToken.refreshToken = account.refresh_token || "";
-        updatedToken.accessTokenExpires = account.expires_at || Date.now();
+        updatedToken.accessToken = account.access_token ?? "";
+        updatedToken.refreshToken = account.refresh_token ?? "";
+        updatedToken.accessTokenExpires = account.expires_at ?? Date.now();
         updatedToken.userId = user.id;
-        updatedToken.id = account.providerAccountId || "";
+        updatedToken.id = account.providerAccountId ?? "";
       }
-      if (Date.now() < (updatedToken.accessTokenExpires || 0)) {
+      if (Date.now() < (updatedToken.accessTokenExpires ?? 0)) {
         return updatedToken;
       }
       updatedToken.accessToken = await refreshedToken(updatedToken);
@@ -150,9 +150,11 @@ async function refreshedToken(
         refresh_token: updatedToken.refreshToken || "",
       }),
     });
-    const { access_token: accessToken } = await response.json();
+    const { access_token: accessToken } = (await response.json()) as {
+      access_token: string;
+    };
     return accessToken;
   } else {
-    return updatedToken.accessToken || "";
+    return updatedToken.accessToken ?? "";
   }
 }

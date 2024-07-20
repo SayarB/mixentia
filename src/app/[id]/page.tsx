@@ -22,22 +22,22 @@ const PlaylistPage: React.FC<Props> = ({ params: { id } }) => {
     const [selectedTags, setSelectedTags] = useState<string[]>([])
     const selectedTracks = selectedTags.flatMap(tag => tagsData?.data.filter(track => track.categoryName === tag).map(track => track.trackId) ?? [])
 
-    const onTrackSelected = (trackId: string) => {
-        playTrackMutation.mutateAsync({ trackIds: [trackId], playlistId: id });
+    const onTrackSelected = async (trackId: string) => {
+        await playTrackMutation.mutateAsync({ trackIds: [trackId], playlistId: id });
     }
 
-    const onPlaySelection = () => {
+    const onPlaySelection = async () => {
 
         const trackIds = new Set<string>(selectedTracks)
 
-        playTrackMutation.mutateAsync({ trackIds: Array.from(trackIds), playlistId: id });
+        await playTrackMutation.mutateAsync({ trackIds: Array.from(trackIds), playlistId: id });
 
     }
 
     return <div>
         <h1>Playlist Page</h1>
         <button onClick={onPlaySelection} className="bg-black text-white p-2">Play Selection</button>
-        {tagsData?.tags.map((tag) => <button onClick={() => {
+        {tagsData?.tags.map((tag) => <button key={tag} onClick={() => {
             setSelectedTags(tags => {
                 if (!tags.includes(tag)) {
                     return [...selectedTags, tag]

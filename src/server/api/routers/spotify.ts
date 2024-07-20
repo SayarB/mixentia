@@ -20,7 +20,7 @@ export const SpotifyRouter = createTRPCRouter({
     if (res.status !== 200) {
       return null;
     }
-    const data: PlaylistResponse = await res.json();
+    const data: PlaylistResponse = (await res.json()) as PlaylistResponse;
 
     return { ...data, playlists: data.items, items: undefined };
   }),
@@ -36,8 +36,8 @@ export const SpotifyRouter = createTRPCRouter({
         },
       });
 
-      const data: PlaylistDetailed =
-        res.status === 200 ? await res.json() : null;
+      const data: PlaylistDetailed | null =
+        res.status === 200 ? ((await res.json()) as PlaylistDetailed) : null;
       return data;
     }),
 

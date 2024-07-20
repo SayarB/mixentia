@@ -49,7 +49,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
 
         setItemsState((prev) => {
 
-            let arr: { root: Item[], [x: string]: Item[] } = { root: prev.root }
+            const arr: { root: Item[], [x: string]: Item[] } = { root: prev.root }
             Object.keys(prev).forEach(k => {
                 const val = prev[k]
                 if (val === undefined) return
@@ -64,8 +64,8 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
         })
     }
 
-    const handleSubmit = () => {
-        subPlaylistMutation.mutateAsync({ playlistId, items: itemsState })
+    const handleSubmit = async () => {
+        await subPlaylistMutation.mutateAsync({ playlistId, items: itemsState })
     }
 
     return (
@@ -77,11 +77,11 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
                 onDragEnd={handleDragEnd}>
                 <div className='max-w-[1200px] h-[100%] mx-auto flex items-center justify-center'>
                     <div className="flex items-center justify-center h-[98%] ">
-                        <DNDContainer id={'root'} items={itemsState['root']} title='Root' className='bg-slate-400 w-[300px] h-[100%] overflow-scroll ' />
+                        <DNDContainer id={'root'} items={itemsState.root} title='Root' className='bg-slate-400 w-[300px] h-[100%] overflow-scroll ' />
                         <div className='h-full'>
                             <div className='grid gap-2 grid-cols-2 grid-rows-2 h-full w-full'>
                                 {Object.keys(itemsState).filter(k => k !== "root").map((key) => (
-                                    <DNDContainer id={key} items={itemsState[key] ?? []} title={key} onTitleChange={(title) => {
+                                    <DNDContainer id={key} key={key} items={itemsState[key] ?? []} title={key} onTitleChange={(title) => {
                                         onTitleChange(key, title)
                                     }} className={`bg-gray-200 border${activeContainer === key ? '-2' : ''} border-gray-400 w-[300px] h-full overflow-scroll`} />
                                 ))}
@@ -185,7 +185,7 @@ const DNDArena: React.FC<Props> = ({ playlistId, items, defaultState }) => {
                     ],
                     [overContainer]: [
                         ...overItems.slice(0, newIndex),
-                        activeItems[activeIndex] as Item,
+                        activeItems[activeIndex]!,
                         ...overItems.slice(newIndex, overItems.length)
                     ]
                 };
